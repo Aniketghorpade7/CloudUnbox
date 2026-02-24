@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Unbox</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Inter&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:Inter;
+background:linear-gradient(135deg,#020024,#090979,#00d4ff);
+color:white;
+text-align:center;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:30px;
+}
+
+h1{
+font-family:Orbitron;
+font-size:48px;
+margin-bottom:10px;
+}
+
+.card{
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(12px);
+border-radius:20px;
+padding:25px;
+margin-top:25px;
+box-shadow:0 0 25px rgba(0,0,0,0.4);
+}
+
+#Poster img{
+width:100%;
+border-radius:15px;
+box-shadow:0 0 20px cyan;
+}
+
+#placeholder{
+width:320px;
+height:240px;
+margin:20px auto;
+border:4px solid cyan;
+border-radius:15px;
+display:flex;
+align-items:center;
+justify-content:center;
+position:relative;
+background:black;
+}
+
+#capturedImage{
+max-width:100%;
+max-height:100%;
+display:none;
+border-radius:10px;
+}
+
+/* PHOTO FRAME */
+.frame{
+position:absolute;
+top:-15px;
+left:-15px;
+right:-15px;
+bottom:-15px;
+border:6px solid #00ffff;
+border-radius:20px;
+pointer-events:none;
+box-shadow:0 0 25px cyan;
+}
+
+#video{
+display:none;
+width:320px;
+height:240px;
+border-radius:12px;
+margin:auto;
+}
+
+button{
+padding:12px 30px;
+border:none;
+border-radius:30px;
+background:linear-gradient(90deg,#00f,#0ff);
+color:white;
+font-size:16px;
+margin:10px;
+cursor:pointer;
+box-shadow:0 0 15px cyan;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+#snapBtn{
+background:linear-gradient(90deg,#ff0040,#ff8000);
+}
+
+details{
+margin-top:20px;
+}
+
+footer{
+margin-top:40px;
+opacity:0.7;
+}
+
+/* ---------- RESPONSIVE DESIGN ---------- */
+
+@media (max-width: 900px){
+    h1{
+        font-size:36px;
+    }
+
+    .container{
+        padding:20px;
+    }
+}
+
+@media (max-width: 600px){
+
+    h1{
+        font-size:28px;
+    }
+
+    .card{
+        padding:15px;
+    }
+
+    #placeholder,
+    #video{
+        width:260px;
+        height:200px;
+    }
+
+    button{
+        font-size:14px;
+        padding:10px 20px;
+    }
+
+    body{
+        font-size:14px;
+    }
+}
+
+@media (max-width: 400px){
+
+    h1{
+        font-size:24px;
+    }
+
+    #placeholder,
+    #video{
+        width:220px;
+        height:170px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Cloud Unbox ☁️</h1>
+<p>Live AWS EC2 Deployment Demo</p>
+
+<div class="card">
+<h3>What’s happening?</h3>
+<p>This site is running on a real AWS EC2 Linux server created by students.</p>
+</div>
+
+<div class="card" id="Poster">
+<img src="CS_poster.jpeg">
+</div>
+
+<div class="card">
+<h3>Behind the scenes</h3>
+<p>Browser → Internet → AWS EC2 → Website</p>
+<p>
+🖥 EC2 | 🌐 Apache | 📁 HTML CSS JS
+</p>
+</div>
+
+<div class="card">
+
+<h3>Capture your unBox Memory 📸</h3>
+
+<div id="placeholder">
+<span id="placeholderText">Big Smile :)</span>
+<img id="capturedImage">
+<div class="frame"></div>
+</div>
+
+<video id="video" autoplay></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+<button id="cameraBtn">Open Camera</button>
+<button id="flipBtn" style="display:none;">Flip Camera</button>
+<button id="snapBtn" style="display:none;">Click Memory</button>
+
+</div>
+
+<div class="card">
+<details>
+<summary>Geek Mode 🤓</summary>
+<p>
+Server: AWS EC2<br>
+OS: Aamazon Linux<br>
+Web Server: Apache<br>
+Deployment: Git
+</p>
+</details>
+
+<p>IaaS Demo – Virtual servers instead of physical hardware.</p>
+</div>
+
+<footer>
+<hr>
+<p>SAIT – Walchand College of Engineering<br>Cloud Unbox 2026</p>
+</footer>
+
+</div>
+
+<script>
+
+const video=document.getElementById("video");
+const canvas=document.getElementById("canvas");
+const capturedImage=document.getElementById("capturedImage");
+const placeholderText=document.getElementById("placeholderText");
+const placeholder=document.getElementById("placeholder");
+const cameraBtn=document.getElementById("cameraBtn");
+const snapBtn=document.getElementById("snapBtn");
+const flipBtn=document.getElementById("flipBtn");
+
+let stream;
+let facingMode="environment"; // back camera default
+
+async function startCamera(){
+    if(stream){
+        stream.getTracks().forEach(t=>t.stop());
+    }
+
+    stream=await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode }
+    });
+
+    video.srcObject=stream;
+    video.style.display="block";
+}
+
+cameraBtn.onclick=async()=>{
+    await startCamera();
+
+    placeholder.style.display="none";
+    cameraBtn.style.display="none";
+    snapBtn.style.display="inline";
+    flipBtn.style.display="inline";
+}
+
+flipBtn.onclick=async()=>{
+    facingMode = facingMode==="environment" ? "user" : "environment";
+    await startCamera();
+}
+
+snapBtn.onclick=()=>{
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+
+    canvas.getContext("2d").drawImage(video,0,0);
+
+    let data=canvas.toDataURL();
+
+    capturedImage.src=data;
+    capturedImage.style.display="block";
+    placeholderText.style.display="none";
+
+    video.style.display="none";
+    placeholder.style.display="flex";
+    snapBtn.style.display="none";
+    flipBtn.style.display="none";
+    cameraBtn.style.display="inline";
+    cameraBtn.innerText="Take Another";
+
+    stream.getTracks().forEach(t=>t.stop());
+
+    let a=document.createElement("a");
+    a.download="CloudMemory_"+Date.now()+".png";
+    a.href=data;
+    a.click();
+}
+
+</script>
+
+</body>
+</html>
